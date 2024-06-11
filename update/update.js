@@ -12,7 +12,7 @@ router.put("/", (req, res) => {
     let p_id = req.body.p_id
     let obj = {
         p_name: req.body.p_name,
-        p_cost: req.body.p_costs
+        p_cost: req.body.p_cost
     }
     //connect to mongodb
     mcl.connect(url, (err, conn) => {
