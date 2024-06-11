@@ -1,37 +1,43 @@
-const express = require('express')  
+//import modules
+const express = require('express')
 let mongodb = require('mongodb')
-let url = require('../url')
+//import url
+const url = require('../url')
+//create mongo client
 let mcl = mongodb.MongoClient
+//create router instance
 let router = express.Router()
-
-router.post('/', (req, res) => {
-    let obj = req.body;
+//create rest api
+router.put("/", (req, res) => {
+    let p_id = req.body.p_id
+    let obj = {
+        p_name: req.body.p_name,
+        p_cost: req.body.p_costs
+    }
+    //connect to mongodb
     mcl.connect(url, (err, conn) => {
-        if (err) console.log(err);
+        if (err)
+            console.log('Error in connection :- ', err)
         else {
-            let db = conn.db('nodedb');
-            db.collection('Products').updateOne(
-                { 'pid': obj.pid },
-                { $set: { 'pname': obj.pname, 'price': obj.price } },
-                (err, result) => {
-                    if (err) {
-                        console.log(err)
-                        res.json({ 'update': 'error' })
+            let db = conn.db('nodedb')
+            db.collection('products').updateOne({ p_id }, { $set: obj }, (err, result) => {
+                if (err)
+                    res.json({ 'update': 'Error ' + err })
+                else{
+                    if (result.matchedCount != 0) {
+                        console.log("Data updated ")
+                        res.json({ 'update': 'success' })
+                    } else {
+                        console.log("Data Not updated ")
+                        res.json({ 'update': 'Record Not found' })
                     }
-                    else {
-                        if(result.matchedCount != 0) {
-                            console.log("Data updated")
-                            res.json({ 'update': 'success' })
-                        } else {
-                            console.log("Data not found")
-                            res.json({ 'update': 'failed' })
-                        }
-                    }
+                    conn.close()
                 }
-                conn.close()
-            )
+            })
         }
     })
 })
 
+
+//export router
 module.exports = router
